@@ -45,42 +45,7 @@ install_solana() {
     fi
 }
 
-setup_wallet() {
-    KEYPAIR_DIR="$HOME/solana_keypairs"
-    mkdir -p "$KEYPAIR_DIR"
 
-    show "Do you want to use an existing wallet or create a new one?"
-    PS3="Please enter your choice (1 or 2): "
-    options=("Use existing wallet" "Create new wallet")
-    select opt in "${options[@]}"; do
-        case $opt in
-            "Use existing wallet")
-                show "Recovering from existing wallet..."
-                KEYPAIR_PATH="$KEYPAIR_DIR/eclipse-import.json"
-                solana-keygen recover -o "$KEYPAIR_PATH" --force
-                if [[ $? -ne 0 ]]; then
-                    show "Failed to recover the existing wallet. Exiting."
-                    exit 1
-                fi
-                break
-                ;;
-            "Create new wallet")
-                show "Creating a new wallet..."
-                KEYPAIR_PATH="$KEYPAIR_DIR/eclipse-new.json"
-                solana-keygen new -o "$KEYPAIR_PATH" --force
-                if [[ $? -ne 0 ]]; then
-                    show "Failed to create a new wallet. Exiting."
-                    exit 1
-                fi
-                break
-                ;;
-            *) show "Invalid option. Please try again." ;;
-        esac
-    done
-
-    solana config set --keypair "$KEYPAIR_PATH"
-    show "Wallet setup completed!"
-}
 
 setup_network() {
     show "Do you want to deploy on the mainnet or testnet?"
@@ -157,14 +122,11 @@ main_menu() {
     while true; do
         show "Select a part to execute:"
         PS3="Please enter your choice (1, 2, 3, 4, or 5): "
-        options=("Installation" "Wallet Setup" "Network Setup" "Create SPL Token and Operations" "Exit")
+        options=("Installation"  "Network Setup" "Create SPL Token and Operations" "Exit")
         select opt in "${options[@]}"; do
             case $opt in
                 "Installation")
                     install_solana
-                    ;;
-                "Wallet Setup")
-                    setup_wallet
                     ;;
                 "Network Setup")
                     setup_network
